@@ -58,13 +58,16 @@ public void displayProcess() {
             int choice = 0;
             do {
                 try {
-                    System.out.println("Choose from the menu below");
-                    System.out.println("0. exit");
-                    System.out.println("1. enter a process");
-                    System.out.println("2. display all processes");
-                    System.out.println("3. FCFS");
+                    System.out.println("============================================");
+                    System.out.println("|                 Main Menu                |");
+                    System.out.println("============================================");
+                    System.out.println("| 0. exit                                   |");
+                    System.out.println("| 1. enter a process                        |");
+                    System.out.println("| 2. display all processes                  |");
+                    System.out.println("| 3. FCFS                                   |");
+                    System.out.println("============================================");
+                    System.out.print("Enter your choice: ");
 
-                    System.out.print("Enter a choice: ");
                     choice = scan.nextInt();
                     scan.nextLine();
 
@@ -85,7 +88,7 @@ public void displayProcess() {
 
     public static void FcfsAlgorithm() {
         if(list.isEmpty()) {
-            System.out.print("There are no processes ");
+            System.out.println("There are no processes ");
             return;
         }
         ClsProcess[] array = new ClsProcess[list.size()];
