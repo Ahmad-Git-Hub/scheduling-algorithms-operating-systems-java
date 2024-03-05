@@ -65,6 +65,7 @@ public class Process {
                 System.out.println("| 1. enter a process                        |");
                 System.out.println("| 2. display all processes                  |");
                 System.out.println("| 3. FCFS                                   |");
+                System.out.println("| 4. SJF                                   |");
                 System.out.println("============================================");
                 System.out.print("Enter your choice: ");
 
@@ -76,6 +77,8 @@ public class Process {
                     case 1 -> enterProcess();
                     case 2 -> displayAllProcesses();
                     case 3 -> FcfsAlgorithm();
+                    case 4 -> sjf();
+
                     default -> System.out.println("Invalid choice. Please enter a valid option.");
                 }
             } catch (java.util.InputMismatchException e) {
@@ -88,7 +91,42 @@ public class Process {
 
     public static void sjf(){
 
+        if(list.isEmpty()) {
+            System.out.println("There are no processes ");
+            return;
+        }
+        Process[] array = new Process[list.size()];
+        int array_index = 0;
+        for(Process currentProcess : list) {
+            array[array_index] = currentProcess;
+            array_index++;
+        }
 
+        Process temp = new Process();
+
+//        int min = 0;
+//        for(int  i = 0; i < array.length - 1; i++) {
+//            for(int j = i+1; j < array.length; j++) {
+//                if(min > array[j].arrival_time) {
+//                    min = array[j].arrival_time;
+//                    temp = array[i];
+//                    array[i] = array[j];
+//                    array[j] = temp;
+//                }
+//            }
+//        }
+        for(int  i = 0; i < array.length - 1; i++) {
+            for(int j = i+1; j < array.length; j++) {
+                if(array[i].burst_time > array[j].burst_time) {
+                    temp = array[i];
+                    array[i] = array[j];
+                    array[j] = temp;
+                }
+            }
+        }
+        for (Process clsProcess : array) {
+            clsProcess.displayProcess();
+        }
 
     }
 
