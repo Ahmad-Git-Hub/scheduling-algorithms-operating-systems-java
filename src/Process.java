@@ -4,18 +4,23 @@ public class Process {
 
     static Scanner scan = new Scanner(System.in);
     String process_name;
-    int arrival_time;
-    int burst_time;
+    int arrivalTime;
+    int burstTime;
+    int currentBurstTime;
+    int completionTime = 0;
+    int waitingTime = 0;
+    int turnAroundTime = 0;
 
     static List<Process> list = new ArrayList<>();
 
     public Process() {
 
     }
-    public Process(String process_name, int arrival_time, int burst_time) {
+    public Process(String process_name, int arrivalTime, int burst_time) {
         this.process_name = process_name;
-        this.burst_time = burst_time;
-        this.arrival_time = arrival_time;
+        this.burstTime = burst_time;
+        this.arrivalTime = arrivalTime;
+        this.currentBurstTime=burstTime;
     }
 
 
@@ -39,8 +44,8 @@ public class Process {
     public void displayProcess() {
         System.out.println("──────────────────────────────────────");
         System.out.printf("\033[1;33m%-15s\033[0m   \033[1;36m%-12s\033[0m%n", "Process Name", this.process_name);
-        System.out.printf("\033[1;33m%-15s\033[0m   \033[1;36m%-12d\033[0m%n", "Arrival Time", this.arrival_time);
-        System.out.printf("\033[1;33m%-15s\033[0m   \033[1;36m%-12d\033[0m%n", "Burst Time", this.burst_time);
+        System.out.printf("\033[1;33m%-15s\033[0m   \033[1;36m%-12d\033[0m%n", "Arrival Time", this.arrivalTime);
+        System.out.printf("\033[1;33m%-15s\033[0m   \033[1;36m%-12d\033[0m%n", "Burst Time", this.burstTime);
         System.out.println("──────────────────────────────────────");
     }
 
@@ -55,17 +60,19 @@ public class Process {
     }
 
     public void displayMenu() {
-        int choice = 0;
+        int choice;
+        boolean roundRobinUsed = false;
         do {
             try {
                 System.out.println("============================================");
-                System.out.println("|                 Main Menu                |");
+                System.out.println("|                 Main Menu                 |");
                 System.out.println("============================================");
                 System.out.println("| 0. exit                                   |");
                 System.out.println("| 1. enter a process                        |");
                 System.out.println("| 2. display all processes                  |");
                 System.out.println("| 3. FCFS                                   |");
-                System.out.println("| 4. SJF                                   |");
+                System.out.println("| 4. SJF                                    |");
+                System.out.println("| 5. Round Robin                            |");
                 System.out.println("============================================");
                 System.out.print("Enter your choice: ");
 
@@ -76,8 +83,17 @@ public class Process {
                     case 0 -> System.out.println("Exiting");
                     case 1 -> enterProcess();
                     case 2 -> displayAllProcesses();
-                    case 3 -> FcfsAlgorithm();
-                    case 4 -> sjf();
+                    case 3 -> FCFS();
+                    case 4 -> SJF();
+                    case 5 -> {
+                        if(!roundRobinUsed) {
+                            roundRobinUsed=true;
+                            RR();
+                        } else {
+                            System.out.println("Choose another algorithm");
+                        }
+                    }
+
 
                     default -> System.out.println("Invalid choice. Please enter a valid option.");
                 }
@@ -89,7 +105,84 @@ public class Process {
         } while (choice != 0);
     }
 
-    public static void sjf(){
+
+    public static void RR() {
+        int time = 0;
+        int quantum = 5;
+        if(list.isEmpty()) {
+            System.out.println("There are no processes ");
+            return;
+        }
+        Process[] array = new Process[list.size()];
+        int array_index = 0;
+        for(Process currentProcess : list) {
+            array[array_index] = currentProcess;
+            array_index++;
+        }
+        Process temp;
+        for(int  i = 0; i < array.length - 1; i++) {
+            for(int j = i+1; j < array.length; j++) {
+                if(array[i].arrivalTime > array[j].arrivalTime) {
+                    temp = array[i];
+                    array[i] = array[j];
+                    array[j] = temp;
+                }
+            }
+        }
+
+        int completedProcesses=0;
+        boolean done = false;
+        int tempBurstTime;
+        for(int i = 0; !done; i++) {
+            i = i % (array.length);
+            if (array[i].currentBurstTime != 0) {
+                tempBurstTime = array[i].currentBurstTime - quantum;
+                if (tempBurstTime < 0) {
+                    time += quantum + tempBurstTime;
+                    array[i].currentBurstTime = 0;
+                    array[i].completionTime = time;
+                    array[i].turnAroundTime = array[i].completionTime - array[i].arrivalTime;
+                    array[i].waitingTime = array[i].turnAroundTime - array[i].burstTime;
+                    completedProcesses++;
+                } else if (tempBurstTime == 0) {
+                    time += quantum;
+                    array[i].currentBurstTime = 0;
+                    array[i].completionTime = time;
+                    array[i].turnAroundTime = array[i].completionTime - array[i].arrivalTime;
+                    array[i].waitingTime = array[i].turnAroundTime - array[i].burstTime;
+                    completedProcesses++;
+                } else {
+                    array[i].currentBurstTime = tempBurstTime;
+                    time += quantum;
+                }
+                if (completedProcesses == array.length) {
+                    done = true;
+                }
+
+                System.out.println("process: " + array[i].process_name + " burst time: " + array[i].burstTime);
+
+
+            }
+
+        }
+
+        System.out.println("──────────────────────────────────────");
+        System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5s\033[0m", "completed processes: ", completedProcesses);
+
+        for(Process p : array) {
+            System.out.println();
+            System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5s\033[0m", "Process Name", p.process_name);
+            System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5d\033[0m", "AT", p.arrivalTime);
+            System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5d\033[0m", "BT", p.burstTime);
+            System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5d\033[0m", "CT", p.completionTime);
+            System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5d\033[0m", "TAT", p.turnAroundTime);
+            System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5d\033[0m", "WT", p.waitingTime);
+
+        }
+        System.out.println("\n──────────────────────────────────────");
+
+    }
+    public static void SJF(){
 
         if(list.isEmpty()) {
             System.out.println("There are no processes ");
@@ -102,22 +195,12 @@ public class Process {
             array_index++;
         }
 
-        Process temp = new Process();
+        Process temp;
 
-//        int min = 0;
-//        for(int  i = 0; i < array.length - 1; i++) {
-//            for(int j = i+1; j < array.length; j++) {
-//                if(min > array[j].arrival_time) {
-//                    min = array[j].arrival_time;
-//                    temp = array[i];
-//                    array[i] = array[j];
-//                    array[j] = temp;
-//                }
-//            }
-//        }
+
         for(int  i = 0; i < array.length - 1; i++) {
             for(int j = i+1; j < array.length; j++) {
-                if(array[i].burst_time > array[j].burst_time) {
+                if(array[i].burstTime > array[j].burstTime) {
                     temp = array[i];
                     array[i] = array[j];
                     array[j] = temp;
@@ -130,7 +213,7 @@ public class Process {
 
     }
 
-    public static void FcfsAlgorithm() {
+    public static void FCFS() {
         if(list.isEmpty()) {
             System.out.println("There are no processes ");
             return;
@@ -142,10 +225,10 @@ public class Process {
             array_index++;
         }
 
-        Process temp = new Process();
+        Process temp;
         for(int  i = 0; i < array.length - 1; i++) {
             for(int j = i+1; j < array.length; j++) {
-                if(array[i].arrival_time > array[j].arrival_time) {
+                if(array[i].arrivalTime > array[j].arrivalTime) {
                     temp = array[i];
                     array[i] = array[j];
                     array[j] = temp;
@@ -157,6 +240,8 @@ public class Process {
         }
 
     }
+
+
 
 
 
