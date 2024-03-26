@@ -88,7 +88,7 @@ public class Process {
                     case 5 -> {
                         if(!roundRobinUsed) {
                             roundRobinUsed=true;
-                            RR();
+                            roundRobin();
                         } else {
                             System.out.println("Choose another algorithm");
                         }
@@ -106,7 +106,7 @@ public class Process {
     }
 
 
-    public static void RR() {
+    public static void roundRobin() {
         int time = 0;
         int quantum = 5;
         if(list.isEmpty()) {
@@ -131,9 +131,8 @@ public class Process {
         }
 
         int completedProcesses=0;
-        boolean done = false;
         int tempBurstTime;
-        for(int i = 0; !done; i++) {
+        for(int i = 0; completedProcesses != array.length; i++) {
             i = i % (array.length);
             if (array[i].currentBurstTime != 0) {
                 tempBurstTime = array[i].currentBurstTime - quantum;
@@ -155,20 +154,17 @@ public class Process {
                     array[i].currentBurstTime = tempBurstTime;
                     time += quantum;
                 }
-                if (completedProcesses == array.length) {
-                    done = true;
-                }
 
                 System.out.println("process: " + array[i].process_name + " burst time: " + array[i].currentBurstTime);
-
-
             }
 
         }
 
         System.out.println("──────────────────────────────────────");
         System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5s\033[0m", "completed processes: ", completedProcesses);
-        int avgWt = 0;
+         double avgWT = 0;
+         double avgTAT = 0;
+         double avgCT = 0;
         for(Process p : array) {
             System.out.println();
             System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5s\033[0m", "Process Name", p.process_name);
@@ -177,10 +173,17 @@ public class Process {
             System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5d\033[0m", "CT", p.completionTime);
             System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5d\033[0m", "TAT", p.turnAroundTime);
             System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5d\033[0m", "WT", p.waitingTime);
-            avgWt+=p.waitingTime;
+            avgWT+=p.waitingTime;
+            avgTAT += p.turnAroundTime;
+            avgCT += p.completionTime;
         }
-        avgWt /= array.length;
-        System.out.println("\nAverage waiting time:"+avgWt);
+        avgWT /= array.length;
+        avgTAT /= array.length;
+        avgCT /= array.length;
+
+        System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5f\033[0m", "\nAverage waiting time:", avgWT);
+        System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5f\033[0m", "\nAverage Completion time:", avgCT);
+        System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5f\033[0m", "\nAverage Turn Around Time time:", avgTAT);
         System.out.println("\n──────────────────────────────────────");
 
     }
