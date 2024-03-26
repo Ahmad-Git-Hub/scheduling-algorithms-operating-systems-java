@@ -168,7 +168,9 @@ public class Process {
 
         System.out.println("──────────────────────────────────────");
         System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5s\033[0m", "completed processes: ", completedProcesses);
-        int avgWt = 0;
+         double avgWT = 0;
+         double avgTAT = 0;
+         double avgCT = 0;
         for(Process p : array) {
             System.out.println();
             System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5s\033[0m", "Process Name", p.process_name);
@@ -177,10 +179,21 @@ public class Process {
             System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5d\033[0m", "CT", p.completionTime);
             System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5d\033[0m", "TAT", p.turnAroundTime);
             System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5d\033[0m", "WT", p.waitingTime);
-            avgWt+=p.waitingTime;
+            avgWT+=p.waitingTime;
+            avgTAT += p.turnAroundTime;
+            avgCT += p.completionTime;
         }
-        avgWt /= array.length;
-        System.out.println("\nAverage waiting time:"+avgWt);
+        avgWT /= array.length;
+        avgTAT /= array.length;
+
+        avgCT /= array.length;
+
+        System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5f\033[0m", "\nAverage waiting time:", avgWT);
+        System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5f\033[0m", "\nAverage Completion time:", avgCT);
+        System.out.printf("\033[1;33m%-1s\033[0m   \033[1;36m%-5f\033[0m", "\nAverage Turn Around Time time:", avgTAT);
+
+
+
         System.out.println("\n──────────────────────────────────────");
 
     }
