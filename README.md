@@ -32,6 +32,3 @@ This Java program simulates various process scheduling algorithms, including Fir
 * adding process: P1
 * ...
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
